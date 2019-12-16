@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>pwnd</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/cover.css" rel="stylesheet" />
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-cookies.js"></script>
+
+    <script>
+      var app = angular.module('app',['ngCookies']);
+      app.controller('main',['$scope','$interval','$cookies',function($scope, $interval, $cookies){
+        $scope.model = {};
+        $scope.model.counter=0;
+        $scope.model.startTime = new Date()
+        $scope.model.elapsedMs = 0;
+        $scope.model.malwareInfections = 0
+        $scope.model.defaultMalwareInspectionsPerSec = 0.2 // change this to influence the number of malware infections
+        $scope.timerPromise = $interval(function() {
+          var now = new Date();
+          //$scope.time = now;
+          $scope.model.elapsedMs = now.getTime() - $scope.model.startTime.getTime();
+          $scope.model.malwareInfections = Math.floor($scope.model.elapsedMs/1000 * $scope.model.defaultMalwareInspectionsPerSec);
+        }, 25); // update every 25ms
+
+        // set cookie
+        $scope.setCookie = function(){
+          cookie = $cookies.getObject('unattendedDevice');
+          val = 0;
+          if(cookie != undefined){
+            val = cookie.counter;
+          }
+          val++;
+          $cookies.putObject('unattendedDevice', {'counter':val});
+          $scope.model.counter = val;
+        }
+
+        $scope.setCookie();
+      }]);
+    </script>
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+</head>
+
+<body class="text-center" ng-app="app" ng-controller="main">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+      <main role="main" class="inner cover">
+        <h1 class="cover-heading">Device unattended!</h1>
+        <p class="lead">Your device is already unattended for</p>
+        <p class="lead">{{model.elapsedMs | date: 'mm:ss.sss'}}</p>
+        <p class="lead">
+          While you left your device unattened you could possibly have <br/> {{model.malwareInfections}} malware infections. </a>
+        </p>
+        <p class="lead">There are already {{model.counter}} registrations of this deviced being unattended</p>
+        <p class="lead">
+          <a href="http://www.ict-synergy.com" class="btn btn-lg btn-secondary">Click for more information</a>
+        </p>
+      </main>
+
+    <footer class="mastfoot mt-auto">
+      <div class="inner">
+        <p>For more info visit <a href="http://www.ict-synergy.com/">ICT Synergy</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
